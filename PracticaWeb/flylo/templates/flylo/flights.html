@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+<!-- es carrega el fitxer utils que conté les funcions -->
+{% load flylo_util %}
+
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow">
+
+    {% if departure != 'all' %}
+        <h2 class="margin-bottom-30"><i class="fa fa-space-shuttle"></i> &nbsp;{{ LANG_AVAILABLE_FLIGHTS_FROM }}: <strong>{{ departure }}</strong></h2>
+    {% else %}
+        <h2 class="margin-bottom-30"><i class="fa fa-space-shuttle"></i> &nbsp;{{ LANG_AVAILABLE_ALL_FLIGHTS }}</h2>
+    {% endif %}
+
+    <!-- es crea el formulari per post per passar les dades per body -->
+    <form action="{% url 'flylo:shopping-cart' current_language %}" method="post">
+        {% csrf_token %}
+        {% if flights %}
+
+            <ul>
+                <!-- itera tots els vols -->
+                {% for flight in flights %}
+
+                    <!-- només es mostren aquells vols que ténen seients disponibles -->
+                    {% if flight.number_of_available_seats > 0 %}
+
+                        <!--
+                        s'obté el nombre de seients prèviament seleccionats (si existeixen) i l'aerolinia per fer matching
+                        en cas que l'usuari torni a la pàgina de vols amb el carret de la compra plè
+                        -->
+                        {% if flight.id|stringformat:"i" in request.session.shopping_cart.cart.keys %}
+                            {% get_num_seats_from_flight_id request.session flight.id as num_seats %}
+                            {% get_airline_from_flight_id request.session flight.id as selected_airline %}
+                            {% get_return_from_flight_id request.session flight.id as flight_return %}
+                            {% get_category_from_flight_id request.session flight.id as selected_category %}
+                            {% get_true as show_return %}
+                        {% else %}
+                            {% get_one as num_seats %}
+                            {% get_false as show_return %}
+                        {% endif %}
+
+                        <!-- Cada item de la llista representa un vol -->
+                        <li id="item-flight-list-{{ flight.id }}" class="padding-20 overflow-hidden relative">
+
+                            <!--
+                            S'iclouen els vols de retorn que per defecte estan amagats
+                            -->
+                            {% include 'flylo/includes/flight_returns.html' %}
+
+                            <!--
+                            S'iclouen les opcions de vol que apareixen quan es fa click al checkbox
+                            Per defecte estan en 'hide'
+                            -->
+                            {% include 'flylo/includes/flight_options.html' %}
+
+                            <!-- Descripció del vol -->
+                            <p class="clear pull-left">{{ LANG_FLIGHT_ID }}: <span>{{ flight.flight_number}}</span></p>
+                            <p id="user-seats-{{ flight.id }}" class="display pull-right"><span id="num-seats-{{ flight.id }}"></span></p>
+                            <p class="clear">{{ LANG_AIRPORT_DEPARTURE }}: <span>{{ flight.location_departure }}</span></p>
+                            <p class="clear">{{ LANG_AIRPORT_ARRIVAL }}: <span>{{ flight.location_arrival }}</span></p>
+                            <p class="clear">{{ LANG_DEPARTURE_MOMENT }}: <span>{{ flight.estimated_time_departure }}</span></p>
+                            <p class="clear">{{ LANG_ARRIVAL_MOMENT }}: <span>{{ flight.estimated_time_arrival }}</span></p>
+                            <p class="clear">Price: <span>{{ flight.price }} &euro;</span></p>
+
+                            {% if flight.flight_number in user_flights_ids %}
+
+                                <!-- Botó per anar a fer el check-in si el vol ha estat prèviament adquirit -->
+                                <a class="margin-top-20 pull-right button small-button shadow radius-5 bg-black" style="padding:7px 15px" href="{% url 'flylo:userhome' current_language %}">
+                                    <i class="fa fa-star"></i>&nbsp;&nbsp;{{ LANG_DO_CHECKIN_OR_VIEW_STATUS }}
+                                </a>
+                                <p class="margin-top-30 text-orangered pull-left"><strong>{{ LANG_ACQUIRED }}</strong></p>
+
+                            {% else %}
+
+                                <!-- Botó per anar a la pàgina d'informació del vol -->
+                                <a class="margin-top-20 pull-left button small-button shadow radius-5" href="{% url 'flylo:flight-info' current_language flight.flight_number %}">
+                                    <i class="fa fa-info-circle"></i>&nbsp;&nbsp;{{ LANG_SEE_FLIGHT_INFO }}
+                                </a>
+
+                                <!-- Botó amb cjeckbox per afegir el vol al carret de la compra -->
+                                <label id="label_flight_{{ flight.id }}" class="margin-top-20 pull-right button brown small-button radius-5 shadow">
+                                    <input {% if flight.id|stringformat:"i" in request.session.shopping_cart.cart.keys %}checked {% endif %}
+                                            type="checkbox" name="flight_{{ flight.id }}"
+                                            id="flight_{{ flight.id }}" value="{{ flight.id }}" onclick="selectFlightOptions('{{ flight.id }}', '{{ LANG_SELECTED }}', '{{ LANG_ADD_TO_CART }}', '/flylo/remove-flight/{{ flight.id }}/');" />
+                                            <span id="lang-add-to-cart-{{ flight.id }}">{{ LANG_ADD_TO_CART }}</span> &nbsp;<i class="fa fa-shopping-cart"></i>
+                                </label>
+
+                            {% endif %}
+
+                            <div class="clear"></div>
+
+                            <!-- Demana a l'usuari si vol un vol de tornada -->
+                            <p id="return-flights-{{ flight.id }}" class="margin-top-10 font-size-15 pull-left" {% if not show_return %} style="visibility: hidden"{% endif %}>
+                                <a class="return-button-flights shadow radius-5" href="javascript:" onclick="selectFlightsReturn('{{ flight.id }}')">{{ LANG_WANT_RETURN_FLIGHT_QUESTION }}</a>
+                            </p>
+
+                            <!-- botó per fer ús del comparador de vols -->
+                            <p id="compare-{{ flight.id }}" class="margin-top-10 font-size-15 pull-right">
+                                <a href="{% url 'flylo:comparator' current_language %}?flight_id={{ flight.flight_number }}&departure={{ flight.location_departure }}&arrival={{ flight.location_arrival }}&departure_time={{ flight.estimated_time_departure }}&arrival_time={{ flight.estimated_time_arrival }}">
+                                    <i class="fa fa-bar-chart-o"></i>&nbsp;&nbsp;{{ LANG_EQUIPARATE_FLIGHT }}
+                                </a>
+                            </p>
+
+                            <input type="hidden" name="airline_return_{{ flight.id }}" id="airline_return_{{ flight.id }}" value="{{ flight_return.airline }}" />
+                        </li>
+                        <!-- /Fi de vol -->
+
+                    {%  endif %}
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <p>No Flights are available.</p>
+        {% endif %}
+
+        <div class="clear"></div>
+
+        <div class="margin-top-40">
+            <a href="{% url "flylo:index" current_language %}" class="button large-button shadow radius-5 pull-left"><i class="fa fa-angle-double-left"></i> {{ LANG_RETURN_TO_BACK }}</a>
+        </div>
+
+        <!-- Només si hi ha vols es permet reservar-los mitjançant el carret de la compar -->
+        {% if flights %}
+            <input type="submit" value="{{ LANG_SAVE_AND_GO_TO_SHOPPING_CART }}" class="submit-flights button large-button brown shadow radius-5 pull-right" />
+        {% endif %}
+
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    /**
+     * Quan la pàgina estigui preparada...
+     */
+    $(document).ready(function(){
+        showOptionsForSelectedFlights();
+    });
+
+
+
+    /**
+     * Mostra el nombre de seients que han estat encarregats durant la sessió
+     */
+    var showOptionsForSelectedFlights = function() {
+
+        // s'iteren els vols del carret de compra de la sessió
+        {% for flight in request.session.shopping_cart.cart.items %}
+
+            // es mostra l'icona de l'usuari que indica que aquell vol està al shopping cart
+            $("#user-seats-{{ flight.0 }}").show();
+
+            // s'obtenen, dela sessió, el nombre de seients i l'aeroilinia
+            var selectedAirline = '{{ flight.1.airline }}';
+            var numSeats = '{{ flight.1.seats }}';
+
+            // es mostra el nombre de seients reservats si aquest està definit a la sessió
+            $("#num-seats-{{ flight.0 }}").html(numSeats + ' <i class="fa fa-user"></i> <small>(' + selectedAirline + ')</small>');
+
+            // es mostra el vol de retorn si aquest el tenia seleccionat a la sessió
+            {% if flight.1.return %}
+
+                var flightReturnText = '<span style="color:#F60"><u>Ret</u>: ';
+                flightReturnText += '{{ flight.1.return.flight_number }}: ';
+                flightReturnText += '{{ flight.1.return.location_departure }}-{{ flight.1.return.location_arrival }} ';
+                flightReturnText += '({{ flight.1.return.airline }}) ';
+                flightReturnText += '{{ flight.1.return.estimated_time_departure }}</span>';
+
+                $("#return-flights-{{ flight.0 }}").css("visibility", "visible").html(flightReturnText);
+                $("#compare-{{ flight.0 }}").hide();
+
+            {% endif %}
+
+            $("#lang-add-to-cart-{{ flight.0 }}").html('{{ LANG_ADDED }}');
+
+        {% endfor %}
+    };
+</script>
+
+{% endblock %}

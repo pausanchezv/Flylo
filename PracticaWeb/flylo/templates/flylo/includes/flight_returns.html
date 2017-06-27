@@ -1,0 +1,26 @@
+<div id="absolute-returns-{{ flight.id }}" class="absolute-seats display absolute overflow-hidden padding-20">
+    <h3 class="margin-bottom-10">{{ LANG_SELECT_FLIGHT_RETURN }}</h3>
+
+    <!-- s'iteren els vols de tornada per cada vol i es deixa triar a l'usuari -->
+    <label for="returns_{{ flight.id }}">
+        <select name="returns_{{ flight.id }}" id="flight-returns-{{ flight.id }}" onchange="addReturn('{{ flight.id }}', this.options[this.selectedIndex].innerHTML)">
+            <option value="">- {{ LANG_SELECT }} -</option>
+            {% for r_flight in return_flights.items %}
+                {% if r_flight.0|stringformat:"i" == flight.id|stringformat:"i" %}
+                    {% for item in r_flight.1 %}
+                        {% for item_airline in item.airlines.all %}
+                            <option
+                                    {% if item_airline.long_name == flight_return.airline %} selected {% endif %}
+                                    value="{{ item.flight_number }}: {{ item.location_departure }}-{{ item.location_arrival }} ({{ item_airline.long_name }}) {{ item.estimated_time_departure }}">
+                                    {{ item.flight_number }}: {{ item.location_departure }}-{{ item.location_arrival }} ({{ item_airline.long_name }}) {{ item.estimated_time_departure }}
+                            </option>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </select>
+    </label>
+
+<div class="clear margin-top-40"></div>
+    <a class="button small-button radius-5 shadow" href="javascript:" onclick="cancelReturn('{{ flight.id }}');">{{ LANG_CANCEL }}</a>
+</div>

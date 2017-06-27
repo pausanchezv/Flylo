@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<!-- es carrega el fitxer utils que conté les funcions -->
+{% load flylo_util %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow relative">
+
+    <h2 class="pull-left"><i class="fa fa-check"></i> &nbsp;Check In <strong>{{ flight.flight_number }}</strong></h2>
+    <p class="pull-right">{{ LANG_OCCUPIED_SEATS }}: <small><strong id="occupied-seats-display" class="text-orangered"></strong></small></p>
+
+    <div class="clear"></div>
+
+    <div id="error_message" class="margin-top-20 display error_message shadow radius-5 overflow-hidden">
+        <p class="pull-left"><strong id="error">Error: {{ error_message }}</strong></p>
+        <p class="pull-right"><small><a href="javascript:" onclick="closeErrorMessage('error_message');"><i class="fa fa-remove"></i> {{ LANG_CLOSE }}</a></small></p>
+    </div>
+
+    <form id="form_checkin" method="post" action="{% url 'flylo:checkin-success' current_language flight.flight_number %}">
+        {% csrf_token %}
+        {% get_string_for flight.seats as num_passengers %}
+
+        {% for _ in num_passengers %}
+            <div class="dashed padding-20 margin-bottom-20 overflow-hidden">
+                <h3 class="margin-bottom-20">{{ LANG_PASSENGER_DATA }} {{ forloop.counter }}</h3>
+
+                <div class="pull-left">
+                    <label class="pull-left clear" for="passenger_name_{{ forloop.counter }}">{{ LANG_PASSENGER_NAME }}</label>
+                    <input class="passenger-name pull-left clear shadow radius-5 margin-top-3" type="text" name="passenger_name_{{ forloop.counter }}" id="passenger_name_{{ forloop.counter }}" placeholder="{{ LANG_WRITE_NAME }}" value="" />
+                    <label class="pull-left clear margin-top-30" for="passenger_surname_{{ forloop.counter }}">Cognom del passatger</label>
+                    <input class="passenger-surname pull-left clear shadow radius-5 margin-top-3 margin-bottom-30" type="text" name="passenger_surname_{{ forloop.counter }}" id="passenger_surname_{{ forloop.counter }}" placeholder="{{ LANG_WRITE_SURNAME }}" value="" />
+                </div>
+                <div class="pull-right">
+                    <label class="pull-left clear" for="passenger_seat_{{ forloop.counter }}">{{ LANG_CHOOSE_SEAT }}: (1 - {{ flight.capacity }})</label>
+                    <input class="passenger-seat pull-left clear shadow radius-5 margin-top-3" type="text" name="passenger_seat_{{ forloop.counter }}" id="passenger_seat_{{ forloop.counter }}" placeholder="{{ LANG_WRITE_SEAT }}" value="" />
+                    <small class="clear pull-left text-orangered margin-top-3">L'avió del vol disposa de {{ flight.capacity }} {{ LANG_SEATS }}</small>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="clear"></div>
+        <input type="hidden" name="in-checkin" value="1" />
+        <a class="button large-button radius-5 shadow pull-right margin-top-50" href="javascript:" onclick="checkForm();"><i class="fa fa-check-circle-o"></i> {{ LANG_DO_CHECKIN }}</a>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    /**
+     * Quan el DOM està preparat, s'informa a l'usuari dels seients que ja estan ocupats.
+     */
+    $(document).ready(function() {
+
+        var seatsDisplay = $("#occupied-seats-display");
+        var occupiedSeats = '{{ flight.seats_occupied }}';
+
+        seatsDisplay.html(occupiedSeats.slice(1, occupiedSeats.length - 1));
+
+        if (seatsDisplay.html() == '') {
+            seatsDisplay.html('{{ LANG_ALL_SEATS_ARE_FREE }}');
+        }
+    });
+
+    /**
+     * Obliga a inserir nombres al camp de triar el seient
+     */
+    $(".passenger-seat").keyup(function () {
+        this.value = this.value.replace(/[^0-9]/g,'');
+    });
+
+    /**
+     * Obliga a inserir únicament nombres i lletres als camps nom i cognom
+     */
+    $(".passenger-name, .passenger-surname").keyup(function () {
+        this.value = this.value.replace(/[^0-9a-zA-z ]/g,'');
+    }).change(function () {
+        this.value = this.value.replace(/[^0-9a-zA-z ]/g,'');
+    });
+
+    /**
+     * Comprova que tots els camps hagin estat omplerts
+     */
+    var checkForm = function() {
+
+        // es comença suposant que no ha error
+        var error = false;
+
+        for (var i = 1; i <= parseInt('{{ flight.seats }}'); i++) {
+
+            // s'extreuen els valors del inputs
+            var name = $.trim($("#passenger_name_" + i).val());
+            var surname = $.trim($("#passenger_surname_" + i).val());
+            var seat = $.trim($("#passenger_seat_" + i).val());
+
+            // es comprova que realment tinguin valor
+            if (name == '' || surname == '' || seat == '') {
+                error = error || true;
+            }
+        }
+
+        // s'actua en funció de si hi ha o no error
+        if (error) {
+            $("#error_message").show().find("p strong").html("Error: {{ LANG_ALL_FILEDS_ARE_REQUIRED }}");
+            scrollToTop();
+        }
+
+        else {
+            checkSeats();
+        }
+    };
+
+    /**
+     * Comprova que el seient triat es trobi dins el rank permès i que múltiples passatgers no escollin el
+     * mateix seient
+     */
+    var checkSeats = function() {
+
+        // variable d'error
+        var error = false;
+
+        // array intern de seients per a realitzar comprovacions
+        var seats = [];
+
+        // seient que selecciona l'usuari
+        var seatSelected;
+
+        // seients ocupats per altres passatgers
+        var seatsOccupiedForAnotherPassengers = '{{ flight.seats_occupied }}';
+
+        // es comprova que no es deixin inputs buits
+        for (var i = 1; i <= parseInt('{{ flight.seats }}'); i++) {
+
+            seatSelected = $("#passenger_seat_" + i).val();
+
+            // es comprova que dos passatgers del mateix checkin no triin el mateix seient
+            if ($.inArray(seatSelected, seats) == -1) {
+                seats.push(seatSelected);
+            }
+
+            else {
+                error = error || true;
+                showErrorMessage("{{ LANG_MULTIPLE_PASSENGERS_HAS_A_SAME_SEAT }}");
+                break;
+            }
+
+            // es comprova que el seient seleccionat estigui dins el rank permès
+            if (seatSelected > parseInt('{{ flight.capacity }}') || seatSelected < 1) {
+                error = error || true;
+                showErrorMessage("{{ LANG_ANY_NUMBER_OF_SEAT_HAS_ERROR }}");
+                break;
+            }
+
+            // es comprova el seient triat no estigui ocupat per un passatger d'un altre checkin
+            if (seatsOccupiedForAnotherPassengers.indexOf('/' + seatSelected + '/') >= 0) {
+                error = error || true;
+                showErrorMessage("El seient " + seatSelected + " ja està ocupat per algún passatger!");
+                break;
+            }
+        }
+
+        // es comprova que no hi hagi errors i s'executa el formulari
+        if (!error) {
+
+            $.get("{% url 'flylo:get-free' flight.flight_number %}", {
+                flight: '{{ flight.flight_number }}'
+            },
+
+            function (data) {
+
+                if (data.indexOf('/' + seatSelected + '/') >= 0) {
+                    window.location = '{% url 'flylo:transaction-error' current_language %}';
+                }
+
+                else {
+                    documentSubmit();
+                }
+            });
+        }
+    };
+
+    /**
+     * Executa el formulari del checkin
+     */
+    var documentSubmit = function() {
+        $("#form_checkin").submit();
+    };
+
+    /**
+     * Retorna l'string dels seients
+     * @param value
+     */
+    var occupiedSeatsString = function(value) {
+        return slice(0, value.length() - 1)
+    }
+</script>
+{% endblock %}

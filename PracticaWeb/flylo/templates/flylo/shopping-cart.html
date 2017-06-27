@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load flylo_util %}
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow">
+
+    <h2 class="margin-bottom-30 pull-left"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp;{{ LANG_SHOPPING_CART }} <small><strong>({% get_length request.session.shopping_cart.cart %})</strong></small></h2>
+
+    {% if request.session.shopping_cart.price %}
+        <h2 class="margin-bottom-40 pull-right">Total: {{ request.session.shopping_cart.get_price  }}&euro;</h2>
+    {% endif %}
+
+    <div class="clear"></div>
+
+    {% if not client_error %}
+        {% if request.user.is_authenticated and not user_has_money_to_buy %}
+            <div id="error_message" class="margin-bottom-20 error_message shadow radius-5 overflow-hidden">
+                <p class="pull-left"><strong>{{ LANG_USER_MONEY_ALERT }} {{ current_client_money }}&euro;.<br />{{ LANG_USER_MONEY_ALERT_TEXT }}</strong></p>
+                <p class="pull-right"><small><a href="javascript:" onclick="closeErrorMessage('error_message');"><i class="fa fa-remove"></i> {{ LANG_CLOSE }}</a></small></p>
+            </div>
+        {% endif %}
+
+        {% if request.session.shopping_cart.price  %}
+
+            <ul>
+                {% for flight in request.session.shopping_cart.cart.items  %}
+
+                    <li class="padding-20 margin-bottom-20 overflow-hidden relative">
+                        <div class="page-image absolute">
+                            <img class="img-resposive" src="{% static 'flylo/images/favicon.png' %}" alt="flight" width="150" />
+                        </div>
+
+                        <h3 class="margin-bottom-20 text-limegreen">Item ({{ forloop.counter }}): Vol ({{ flight.1.obj.location_departure }}-{{ flight.1.obj.location_arrival }})</h3>
+                        <p class="clear">{{ LANG_FLIGHT_ID }}: <strong>{{ flight.1.obj.flight_number }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_AIRPORT_DEPARTURE }}: <strong>{{ flight.1.obj.location_departure }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_AIRPORT_ARRIVAL }}: <strong>{{ flight.1.obj.location_arrival }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_DEPARTURE_MOMENT }}: <strong>{{ flight.1.obj.estimated_time_departure }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_ARRIVAL_MOMENT }}: <strong>{{ flight.1.obj.estimated_time_arrival }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_AIRLINE }}: <strong>{{ flight.1.airline }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_BOUGHT_SEATS }}: <strong>{{ flight.1.seats }} {{ LANG_SEATS }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_CATEGORY }}: <strong>{{ flight.1.category }}</strong></p>
+                        <p class="clear margin-top-10">{{ LANG_PRICE }}: <strong>{{ flight.1.price }} &euro; / {{ LANG_PASSENGER }}</strong></p>
+                        <p class="clear margin-top-10"><a href="{% url 'flylo:flight-info' current_language flight.1.obj.flight_number %}"><small><strong class="text-orangered">{{ LANG_MORE_INFO_ABOUT_FLIGHT }}</strong></small></a></p>
+
+                        {% if flight.1.return %}
+
+                            <div class="flight-return padding-20">
+                                <h3 class="margin-bottom-20 text-limegreen">{{ LANG_RETURNING_FLIGHT }} ({{ flight.1.return.location_departure }}-{{ flight.1.return.location_arrival }})</h3>
+                                <p class="clear">{{ LANG_FLIGHT_ID }}: <strong>{{ flight.1.return.flight_number }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_AIRPORT_DEPARTURE }}: <strong>{{ flight.1.return.location_departure }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_AIRPORT_ARRIVAL }}: <strong>{{ flight.1.return.location_arrival }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_DEPARTURE_MOMENT }}: <strong>{{ flight.1.return.estimated_time_departure }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_ARRIVAL_MOMENT }}: <strong>{{ flight.1.return.estimated_time_arrival }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_AIRLINE }}: <strong>{{ flight.1.return.airline }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_BOUGHT_SEATS }}: <strong>{{ flight.1.seats }} {{ LANG_SEATS }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_CATEGORY }}: <strong>{{ flight.1.category }}</strong></p>
+                                <p class="clear margin-top-10">{{ LANG_PRICE }}: <strong>{{ flight.1.return.price }} &euro; / {{ LANG_PASSENGER }}</strong></p>
+                                <p class="clear margin-top-10">
+                                    <a href="{% url 'flylo:flight-info' current_language flight.1.return.flight_number %}">
+                                        <small><strong class="text-orangered">{{ LANG_MORE_INFO_ABOUT_RETURNING_FLIGHT }}</strong></small>
+                                    </a>
+                                </p>
+                            </div>
+
+                        {% endif %}
+
+                        <div class="clear margin-top-40"></div>
+                        <a href="{% url 'flylo:flights' %}" class="button small-button brown shadow radius-5 pull-left"><i class="fa fa-edit"></i> &nbsp;{{ LANG_REMOVE_FLIGHT_FROM_CART }}</a>
+
+                    </li>
+                {% endfor %}
+
+            </ul>
+
+            {% if user_has_money_to_buy or not request.user.is_authenticated %}
+                <a href="{% url 'flylo:buying' current_language %}" class="button large-button shadow brown radius-5 pull-right margin-top-30"><i class="fa fa-credit-card"></i> &nbsp;<strong>{{ LANG_PURCHASE }} {{ request.session.shopping_cart.get_price }}&euro;</strong></a>
+            {% endif %}
+
+        {% else %}
+
+            <div class="empty-dashed padding-20 margin-bottom-20">
+                <h3><strong class="text-orangered">{{ LANG_NO_SELECTED_FLIGHTS_YET }}</strong></h3>
+                <p class="margin-top-20 margin-bottom-50">{{ LANG_NO_SELECTED_FLIGHTS_YET_TEXT }}</p>
+                </div>
+            <a href="{% url 'flylo:index' current_language %}" class="button large-button shadow brown radius-5 pull-right margin-top-30"><i class="fa fa-send-o"></i> &nbsp;<strong>{{ LANG_SELECT_ONE_OR_MORE_FLIGHTS }}</strong></a>
+
+        {% endif %}
+
+    {% else %}
+
+        <div id="error_message" class="margin-bottom-20 error_message shadow radius-5 overflow-hidden">
+            <p class="pull-left"><strong>Error: {{ client_error }}</strong></p>
+            <p class="pull-right"><small><a href="javascript:" onclick="closeErrorMessage('error_message');"><i class="fa fa-remove"></i> {{ LANG_CLOSE }}</a></small></p>
+        </div>
+
+    {% endif %}
+    <a href="{% url 'flylo:index' current_language %}" class="button large-button shadow radius-5 pull-left margin-top-30"><i class="fa fa-angle-double-left"></i> &nbsp;{{ LANG_RETURN_TO_INDEX }}</a>
+</div>
+
+{% endblock %}

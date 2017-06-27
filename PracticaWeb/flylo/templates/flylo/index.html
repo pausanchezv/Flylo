@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% block content %}
+{% load static %}
+
+<div class="container shadow radius-5 margin-top-40">
+
+    <div class="left pull-left padding-20">
+        {% if departures %}
+            <label class="index-select" for="combo-box-index">
+                <span>{{ LANG_SELECT_DEPARTURE_AIRPORT }}</span><br />
+                <select class="margin-top-10 radius-5" name="combo-box-index" onchange="redirectTo(this.value)">
+                    <option value="" selected>- {{ LANG_SELECT }} -</option>
+                    {% for departure in departures %}
+                        <option value="{% url 'flylo:flights' current_language departure.location_departure %}">
+                            {{ departure.location_departure }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+        {% else %}
+            <p>{{ LANG_NO_FLIGHTS_AVAILABLE }}</p>
+        {% endif %}
+
+        <div class="clear"></div>
+        <a href="{% url 'flylo:comparator' %}" class="button brown large-button shadow radius-5 pull-left margin-top-50 margin-bottom-10"><i class="fa fa-line-chart"></i> &nbsp;{{ LANG_FLIGHT_COMPARATOR }}</a>
+        <a href="{% url 'flylo:flights' %}" class="button clear large-button shadow radius-5 pull-left"><i class="fa fa-search"></i> &nbsp;{{ LANG_VIEW_ALL_AVAILABLE_FLIGHTS }}</a>
+    </div>
+
+    <div class="right pull-right relative">
+        <div class="arrow-right absolute"></div>
+        <div class="absolute dark-transparent"></div>
+        <h2 class="slogan absolute padding-10">{{ LANG_SLOGAN }}</h2>
+        <img class="img-responsive" src="{% static 'flylo/images/animated_image.gif' %}" alt="flight" width="500"/>
+    </div>
+</div>
+
+<div class="bg-pink text-center container shadow radius-5 margin-top-40 padding-20 padding-bottom-50">
+    <h2 class="sentence"><i class="fa fa-check-circle"></i> {{ LANG_LOGIN_TO_FLYLO_TEXT }}</h2>
+    <a href="{% url 'flylo:login' current_language %}" class="button extra-large-button radius-5 shadow"><strong>{{ LANG_GO }}</strong></a>
+</div>
+
+{% endblock %}
+

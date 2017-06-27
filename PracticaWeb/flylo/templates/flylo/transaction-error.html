@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow padding-bottom-50">
+
+    <h2 class="margin-bottom-30">
+        <i class="fa fa-exclamation-triangle text-orangered"></i> &nbsp;{{ LANG_TRANSACTION_ERROR }}
+    </h2>
+
+    <div class="dashed padding-20 margin-bottom-20">
+        <p>{{ LANG_TRANSACTION_ERROR_TEXT }}</p>
+    </div>
+
+    <div class="clear margin-top-40"></div>
+    <a href="{% url 'flylo:index' current_language %}" class="button large-button radius-5 shadow"><i class="fa fa-automobile"></i> {{ LANG_RETURN_TO_INDEX }}</a>
+    <a href="{% url 'flylo:userhome' current_language %}" class="button large-button brown radius-5 shadow"><i class="fa fa-user"></i> {{ LANG_RETURN_TO_USERHOME }}</a>
+
+</div>
+{% endblock %}

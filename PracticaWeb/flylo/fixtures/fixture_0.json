@@ -1,0 +1,346 @@
+[
+  {
+    "model": "flylo.Airline",
+    "pk": 1,
+    "fields": {
+      "name": "IBE",
+      "long_name": "Iberia",
+      "country": "Spain",
+      "telephone": "937967854",
+      "year_foundation": "1995"
+    }
+
+  },
+
+  {
+    "model": "flylo.Airline",
+    "pk": 2,
+    "fields": {
+      "name": "VUE",
+      "long_name": "Vueling",
+      "country": "England",
+      "telephone": "908675432",
+      "year_foundation": "1979"
+    }
+
+  },
+
+  {
+    "model": "flylo.Airline",
+    "pk": 3,
+    "fields": {
+      "name": "QAT",
+      "long_name": "Qatar Airways",
+      "country": "Qatar",
+      "telephone": "937967874",
+      "year_foundation": "1965"
+    }
+
+  },
+
+  {
+    "model": "flylo.Airline",
+    "pk": 4,
+    "fields": {
+      "name": "DEL",
+      "long_name": "Delta Airlines",
+      "country": "United States",
+      "telephone": "908675430",
+      "year_foundation": "1999"
+    }
+
+  },
+
+  {
+    "model": "flylo.Aircraft",
+    "pk": 1,
+    "fields": {
+      "name": "A754",
+      "construction_date": "2005-03-29",
+      "first_flight_date": "2005-05-28",
+      "maximum_speed": "890"
+    }
+  },
+
+  {
+    "model": "flylo.Aircraft",
+    "pk": 2,
+    "fields": {
+      "name": "B764",
+      "construction_date": "2006-03-27",
+      "first_flight_date": "2006-04-12",
+      "maximum_speed": "980"
+    }
+  },
+
+  {
+    "model": "flylo.Aircraft",
+    "pk": 3,
+    "fields": {
+      "name": "A320",
+      "construction_date": "2001-03-12",
+      "first_flight_date": "2001-05-14",
+      "maximum_speed": "660"
+    }
+  },
+
+  {
+    "model": "flylo.Aircraft",
+    "pk": 4,
+    "fields": {
+      "name": "B755",
+      "construction_date": "2002-03-12",
+      "first_flight_date": "2002-05-19",
+      "maximum_speed": "770"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 1,
+    "fields": {
+      "aircraft": 2,
+      "number_of_passengers": 200,
+      "name": "business"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 2,
+    "fields": {
+      "aircraft": 2,
+      "number_of_passengers": 279,
+      "name": "economic"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 3,
+    "fields": {
+      "aircraft": 1,
+      "number_of_passengers": 190,
+      "name": "business"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 4,
+    "fields": {
+      "aircraft": 1,
+      "number_of_passengers": 230,
+      "name": "economic"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 5,
+    "fields": {
+      "aircraft": 4,
+      "number_of_passengers": 195,
+      "name": "business"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 6,
+    "fields": {
+      "aircraft": 4,
+      "number_of_passengers": 235,
+      "name": "economic"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 7,
+    "fields": {
+      "aircraft": 3,
+      "number_of_passengers": 210,
+      "name": "business"
+    }
+  },
+
+  {
+    "model": "flylo.Category",
+    "pk": 8,
+    "fields": {
+      "aircraft": 3,
+      "number_of_passengers": 220,
+      "name": "economic"
+    }
+  },
+
+  {
+    "model": "flylo.Flight",
+    "pk": 1,
+    "fields": {
+      "flight_number": "FLY410",
+      "estimated_time_departure": "2017-03-28 21:40+0200",
+      "estimated_time_arrival" :"2017-03-28 22:45+0200",
+      "location_departure" : "BCN",
+      "location_arrival" : "MAD",
+      "aircraft" : 3,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 2,
+    "fields": {
+      "flight_number": "FLY411",
+      "estimated_time_departure":"2017-03-29 12:10+0200",
+      "estimated_time_arrival" : "2017-03-29 14:08-0400",
+      "location_departure" : "BCN",
+      "location_arrival" : "JFK",
+      "aircraft" : 2,
+      "status" : "DELAYED"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 3,
+    "fields": {
+      "flight_number": "FLY412",
+      "estimated_time_departure":"2017-04-02 12:10+0200",
+      "estimated_time_arrival" : "2017-04-02 14:08-0400",
+      "location_departure" : "BCN",
+      "location_arrival" : "SEL",
+      "aircraft" : 1,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 4,
+    "fields": {
+      "flight_number": "FLY413",
+      "estimated_time_departure":"2017-05-29 12:10+0200",
+      "estimated_time_arrival" : "2017-05-29 14:08-0400",
+      "location_departure" : "BCN",
+      "location_arrival" : "POL",
+      "aircraft" : 4,
+      "status" : "DELAYED"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 5,
+    "fields": {
+      "flight_number": "FLY414",
+      "estimated_time_departure":"2017-01-21 12:10+0200",
+      "estimated_time_arrival" : "2017-01-21 14:08-0400",
+      "location_departure" : "FRA",
+      "location_arrival" : "JFK",
+      "aircraft" : 2,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 6,
+    "fields": {
+      "flight_number": "FLY415",
+      "estimated_time_departure":"2017-07-22 12:10+0200",
+      "estimated_time_arrival" : "2017-07-22 14:08-0400",
+      "location_departure" : "FRA",
+      "location_arrival" : "CAT",
+      "aircraft" : 3,
+      "status" : "DELAYED"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 7,
+    "fields": {
+      "flight_number": "FLY416",
+      "estimated_time_departure":"2017-03-29 12:10+0200",
+      "estimated_time_arrival" : "2017-03-29 14:08-0400",
+      "location_departure" : "FRA",
+      "location_arrival" : "PEI",
+      "aircraft" : 1,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 8,
+    "fields": {
+      "flight_number": "FLY417",
+      "estimated_time_departure":"2017-03-26 12:10+0200",
+      "estimated_time_arrival" : "2017-03-26 14:08-0400",
+      "location_departure" : "FRA",
+      "location_arrival" : "SER",
+      "aircraft" : 4,
+      "status" : "DELAYED"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 9,
+    "fields": {
+      "flight_number": "FLY418",
+      "estimated_time_departure":"2017-04-12 12:10+0200",
+      "estimated_time_arrival" : "2017-04-12 14:08-0400",
+      "location_departure" : "ENG",
+      "location_arrival" : "FRA",
+      "aircraft" : 2,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 10,
+    "fields": {
+      "flight_number": "FLY419",
+      "estimated_time_departure":"2017-08-14 12:10+0200",
+      "estimated_time_arrival" : "2017-08-14 14:08-0400",
+      "location_departure" : "ENG",
+      "location_arrival" : "BCF",
+      "aircraft" : 3,
+      "status" : "DELAYED"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 11,
+    "fields": {
+      "flight_number": "FLY420",
+      "estimated_time_departure":"2017-09-11 12:10+0200",
+      "estimated_time_arrival" : "2017-09-11 14:08-0400",
+      "location_departure" : "ENG",
+      "location_arrival" : "POU",
+      "aircraft" : 1,
+      "status" : "FLYING"
+    }
+  },
+
+  {
+   "model": "flylo.Flight",
+    "pk": 12,
+    "fields": {
+      "flight_number": "FLY421",
+      "estimated_time_departure":"2017-03-17 12:10+0200",
+      "estimated_time_arrival" : "2017-03-17 14:08-0400",
+      "location_departure" : "ENG",
+      "location_arrival" : "PAU",
+      "aircraft" : 2,
+      "status" : "DELAYED"
+    }
+  }
+
+]

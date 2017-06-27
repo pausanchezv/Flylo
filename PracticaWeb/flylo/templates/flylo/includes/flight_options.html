@@ -1,0 +1,42 @@
+<div id="absolute-seat-{{ flight.id }}" class="absolute-seats display absolute overflow-hidden padding-20">
+    <h3 class="margin-bottom-10">{{ LANG_SELECT_SEATS_AND_AIRLINE }}</h3>
+
+    <!-- s'itera el nombre de seients per triar a través del select -->
+    <label for="seats_{{ flight.id }}">
+        <select name="seats_{{ flight.id }}" id="flight-seats-{{ flight.id }}">
+            {% for _ in "XXXXXXXXXX" %}
+
+                <!-- només es mostra el nombre de seients com a opció si està realment disponible al vol -->
+                {% if forloop.counter <= flight.number_of_available_seats  %}
+
+                    <option value="{{ forloop.counter }}" {% if forloop.counter|stringformat:"i" == num_seats %} selected {% endif %}>
+                        {{ forloop.counter }} {{ LANG_SEATS }}
+                    </option>
+
+                {% endif %}
+            {% endfor %}
+        </select>
+    </label>
+
+    <!-- s'iteren les aerolinies del vol per deixar triar a l'usuari -->
+    <label for="airline_{{ flight.id }}">
+        <select name="airline_{{ flight.id }}" id="flight-airlines-{{ flight.id }}">
+            {% for airline in flight.airlines.all %}
+                <option value="{{ airline.long_name }}"  {% if airline.long_name == selected_airline %} selected {% endif %}>{{ airline.long_name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <!-- s'iteren les categories del vol per deixar triar a l'usuari -->
+    <label for="category_{{ flight.id }}">
+        <select name="category_{{ flight.id }}" id="flight-categories-{{ flight.id }}">
+            {% for category in flight.aircraft.category_set.all %}
+                <option value="{{ category.name }}"  {% if category.name == selected_category %} selected {% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <div class="lear margin-top-40">
+        <a href="javascript:" onclick="acceptFlightOptions({{ flight.id }}, $('#flight-seats-' + {{ flight.id }}).val(), $('#flight-airlines-' + {{ flight.id }}).val(), '{{ LANG_WANT_RETURN_FLIGHT_QUESTION }}');" class="button large-button radius-5 shadow pull-left"><i class="fa fa-check"></i> {{ LANG_ACCEPT }}</a>
+    </div>
+</div>

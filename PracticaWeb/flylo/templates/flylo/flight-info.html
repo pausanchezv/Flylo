@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow">
+
+    <h2 class="margin-bottom-30"><i class="fa fa-info-circle"></i> &nbsp;{{ LANG_FLIGHT_DETAILS_FROM_ID }}<strong>{{ flight.flight_number }}</strong></h2>
+    <div class="flight-details padding-20 overflow-hidden">
+
+        <div class="pull-left">
+            <p class="margin-bottom-10">{{ LANG_FLIGHT_ID }}: <strong>{{ flight.flight_number }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_ESTIMATED_DEPARTURE_DATE }}: <strong>{{ flight.estimated_time_departure.date }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_ESTIMATED_DEPARTURE_TIME }}: <strong>{{ flight.estimated_time_departure.time }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_ESTIMATED_ARRIVAL_DATE }}: <strong>{{ flight.estimated_time_arrival.date }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_ESTIMATED_ARRIVAL_TIME }}: <strong>{{ flight.estimated_time_arrival.time }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_AIRPORT_DEPARTURE }}: <strong>{{ flight.location_departure }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_AIRPORT_ARRIVAL }}: <strong>{{ flight.location_arrival }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_DISTANCE_FLIGHT }}: <strong>{{ flight.distance }} <small>(Km)</small></strong></p>
+            <p class="margin-bottom-10">{{ LANG_AIRPLANE }}: <strong>{{ flight.aircraft.name }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_PRICE }}: <strong>{{ flight.price }}</strong></p>
+
+        </div>
+        <div class="page-image pull-right">
+            <img class="img-resposive" src="{% static 'flylo/images/favicon.png' %}" alt="flight" width="200" />
+        </div>
+    </div>
+
+    <div class="airlines padding-20">
+        <div class="pull-left margin-left-20">
+            <p class="margin-bottom-20">{{ LANG_AIRLINES_FLIGHT }}:</p>
+            {% for airline in flight.airlines.all %}
+                <a href="{% url 'flylo:airline-info' current_language flight.flight_number airline.name %}" class="button small-button radius-5 shadow pull-left {% if forloop.counter > 1  %}margin-left-10{% endif %}"><i class="fa fa-location-arrow"></i>&nbsp;&nbsp;{{ airline.long_name }}</a>
+            {% endfor %}
+        </div>
+
+        <div class="pull-right margin-right-20">
+            <p class="margin-bottom-20">{{ LANG_AIRCRAFT_FLIGHT }}: <strong>{{ flight.aircraft.name }}</strong></p>
+            <a href="{% url 'flylo:aircraft-info' current_language flight.aircraft.name %}" class="button large-button shadow radius-5 pull-left">{{ LANG_AIRCRAFT_INFO }} <strong>{{ flight.aircraft.name }}</strong></a>
+        </div>
+    </div>
+
+    <div class="margin-top-30">
+        <a href="{% url 'flylo:flights' current_language flight.location_departure %}" class="button brown large-button shadow radius-5 pull-left"><i class="fa fa-angle-double-left"></i> {{ LANG_RETURN_TO_FLIGHT_LIST }}</a>
+
+        <a class="button brown large-button shadow radius-5 pull-right" href="{% url 'flylo:comparator' current_language %}?flight_id={{ flight.flight_number }}&departure={{ flight.location_departure }}&arrival={{ flight.location_arrival }}&departure_time={{ flight.estimated_time_departure }}&arrival_time={{ flight.estimated_time_arrival }}">
+            <i class="fa fa-bar-chart-o"></i>&nbsp;&nbsp;{{ LANG_USE_COMPARATOR_GOR_THIS_FLIGHT }}
+        </a>
+
+    </div>
+</div>
+{% endblock %}

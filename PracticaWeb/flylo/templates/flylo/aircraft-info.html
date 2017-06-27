@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow">
+
+    <h2 class="margin-bottom-30"><i class="fa fa-info-circle"></i> &nbsp;{{ LANG_AICRAFT_DETAILS }}: <strong>{{ aircraft.name }}</strong></h2>
+    <div class="aircraft-details padding-20 margin-top-20 overflow-hidden">
+
+        <div class="pull-left">
+            <h3 class=" margin-bottom-20">{{ LANG_AIRCRAFT_INFO }}</h3>
+            <p class="margin-bottom-10">{{ LANG_AIRCRAFT_ID }}: <strong>{{ aircraft.name }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_CONSTRUCTION_DATE }}: <strong>{{ aircraft.construction_date }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_FIRST_FLIGHT_DATE }}: <strong>{{ aircraft.first_flight_date }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_MAXIMUM_SPEED }}: <strong>{{ aircraft.maximum_speed }}</strong> <small>(km/h)</small></p>
+
+            {% for category in aircraft.category_set.all %}
+                <p class="margin-bottom-10">{{ LANG_NUMBER_OF_PASSENGERS_FROM_CLASS }} ({{ category.name }}): <strong>{{ category.number_of_passengers }}</strong></p>
+            {% endfor %}
+
+            <p class="margin-bottom-10">{{ LANG_NUMBER_OF_PASSENGERS_TOTAL }}: <strong>{{ total_passengers }}</strong></p>
+        </div>
+
+        <div class="page-image pull-right">
+            <img class="img-resposive" src="{% static 'flylo/images/favicon.png' %}" alt="flight" width="200" />
+        </div>
+    </div>
+
+    <div class="margin-top-30">
+        <a href="javascript:" onclick="window.history.back()" class="button brown large-button shadow radius-5 pull-left"><i class="fa fa-angle-double-left"></i> {{ LANG_RETURN_TO_FLIGHT_INFO }}</a>
+    </div>
+</div>
+{% endblock %}

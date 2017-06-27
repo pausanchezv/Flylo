@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+<!--
+base.html és l'arxiu que conté els contenidors base per a totes les vistes (header, footer, etc..)
+Totes les pàgines del projecte han d'extendre de base.html
+-->
+
+{% load static %}
+{% block content %}
+
+<div class="container margin-top-40 padding-20 radius-5 shadow">
+
+    <h2 class="margin-bottom-30"><i class="fa fa-info-circle"></i> &nbsp;{{ LANG_AIRLINE_DETAILS }}: <strong>{{ airline.long_name }} <small>({{ airline.name }})</small></strong></h2>
+    <div class="airline-details padding-20 margin-top-20 overflow-hidden">
+
+        <div class="pull-left">
+            <h3 class=" margin-bottom-20">{{ LANG_AIRLINE_INFO }}</h3>
+            <p class="margin-bottom-10">{{ LANG_NAME }}: <strong>{{ airline.long_name }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_SHORT_NAME }}: <strong>{{ airline.name }}</strong></p>
+
+            <ul class="margin-bottom-30">
+                {% for aircraft in aircrafts_of_airline %}
+                    <li class="margin-left-20 margin-bottom-10">{{ LANG_AIRCRAFT_ID }}: <strong>{{ aircraft.name }}</strong></li>
+                {% endfor %}
+            </ul>
+
+            <p class="margin-bottom-20">{{ LANG_CATEGORIES_OF_AIRLINE }}</p>
+
+            {% for category in airline_categories %}
+                <p class="margin-bottom-20"><a class="button radius-5 shadow small-button button-disabled margin-left-10 margin-bottom-50"><strong>{{ category.name }}</strong></a></p>
+            {% endfor %}
+
+            <p class="margin-bottom-10 margin-top-40">{{ LANG_COUNTRY }}: <strong>{{ airline.country }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_TELEPHONE }}: <strong>{{ airline.telephone }}</strong></p>
+            <p class="margin-bottom-10">{{ LANG_FOUNDATION_YEAR }}: <strong>{{ airline.year_foundation }}</strong></p>
+        </div>
+
+        <div class="page-image pull-right">
+            <img class="img-resposive" src="{% static 'flylo/images/favicon.png' %}" alt="flight" width="200" />
+        </div>
+    </div>
+
+    <div class="margin-top-30">
+        <a href="{% url 'flylo:flight-info' current_language flight.flight_number %}" class="button brown large-button shadow radius-5 pull-left"><i class="fa fa-angle-double-left"></i> {{ LANG_RETURN_TO_FLIGHT_INFO }}</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- es carrega el directori static que conté algunes utilitats del web (estils, imatges, etc) -->
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <title>{{ meta.title }}</title>
+
+    <!-- Meta-informació de la pàgina actual -->
+    <meta name="title" content="{{ meta.title }}" />
+    <meta name="description" content="{{ meta.description }}" />
+    <meta name="keywords" content="{{ meta.keywords }}" />
+    <meta name="author" content="{{ meta.author }}">
+
+    <!-- estils css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'flylo/css/style.css' %}" />
+    <link rel="stylesheet" href="http://fontawesome.io/assets/font-awesome/css/font-awesome.css" />
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="{% static 'flylo/images/favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'flylo/images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- funcions js -->
+    <script src="{% static 'flylo/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'flylo/js/functions.js' %}"></script>
+
+</head>
+
+<body>
+
+    <!-- es carrega el fitxer utils que conté les funcions -->
+    {% load flylo_util %}
+
+    <!-- PopUp per mostrar qualsevol contingut, per defecte comença amagat -->
+    <div id="overlay-container" class="absolute display">
+        <div class="wrapper">
+            <div class="container margin-top-40 radius-5 shadow padding-20">
+            </div>
+        </div>
+    </div>
+
+    <!-- Cada pàgina porta un ID <current_page> que es correspon amb el nom del seu arxiu html -->
+    <div id="{{ current_page }}" class="wrapper">
+
+        <label id="language" class="pull-right padding-10">
+            <span>{{ LANG_LANGUAGE }}:&nbsp;</span>
+            <select onchange="change_lang(this.value, '{{ current_language }}', '{{ current_path }}')">
+                <option {% if current_language == 'ca' %} selected {% endif %} value="ca">Català</option>
+                <option {% if current_language == 'en' %} selected {% endif %} value="en">English</option>
+            </select>
+        </label>
+
+        <header class="shadow radius-5 margin-top-10">
+            <p class="logo">
+                <a href="{% url 'flylo:index' current_language %}"><i class="fa fa-send"></i> Fly<span>Lo</span></a>
+            </p>
+
+            <ul>
+                <a href="{% url 'flylo:buy' current_language %}" class="pull-right">
+                    <li class="option-menu pull-right"><i class="fa fa-shopping-cart"></i>&nbsp;&nbsp{{ LANG_SHOPPING_CART }} <small><strong>({% get_length request.session.shopping_cart.cart %})</strong></small></li>
+                </a>
+
+                {% if user.is_authenticated %}
+
+                    <a href="{% url 'flylo:logout' current_language %}" class="pull-right">
+                        <li class="option-menu pull-right"><i class="fa fa-sign-out"></i>&nbsp;&nbsp{{ LANG_LOGOUT }}</li>
+                    </a>
+
+                    <a href="{% url 'flylo:userhome' current_language %}" class="pull-right">
+                        <li class="option-menu pull-right"><i class="fa fa-home"></i>&nbsp;&nbsp{{ user.username }}</li>
+                    </a>
+
+                {% else %}
+                    <a href="{% url 'flylo:login' current_language %}" class="pull-right">
+                        <li class="option-menu pull-right"><i class="fa fa-sign-in"></i>&nbsp;&nbsp{{ LANG_LOGIN }}</li>
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'flylo:flights' %}" class="pull-right">
+                    <li class="option-menu pull-right"><i class="fa fa-rocket"></i>&nbsp;&nbsp{{ LANG_FLIGHTS }}</li>
+                </a>
+
+                <a href="{% url 'flylo:comparator' current_language %}" class="pull-right">
+                    <li class="option-menu pull-right"><i class="fa fa-bar-chart"></i>&nbsp;&nbsp{{ LANG_COMPARATOR }}</li>
+                </a>
+
+            </ul>
+        </header>
+
+        <!-- Aquest contingut serà diferent segons la pàgina actual -->
+        {% block content %}
+        {% endblock %}
+
+        <footer class="shadow radius-5">
+            <p class="logo"><a href="{% url 'flylo:index' current_language %}">Fly<span>Lo</span></a></p>
+            <p class="slogan">{{ LANG_SLOGAN }}</p>
+            <p class="info margin-top-40">{{ LANG_SUBJECT }}: <strong>{{ LANG_SUBJECT_NAME }}</strong></p>
+            <p class="info margin-bottom-20">{{ LANG_AUTHORS }}: <strong>{{ LANG_AUTHORS_NAME }}</strong></p>
+        </footer>
+    </div>
+
+</body>
+</html>
